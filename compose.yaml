@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  frontend:
+    build:
+      context: ./conduit-frontend
+    env_file: .env
+    container_name: conduit-frontend
+    ports:
+      - 8282:80
+    restart: on-failure
+    networks:
+      - conduit-network
+
+  backend:
+    build:
+      context: ./conduit-backend
+    env_file: .env
+    container_name: conduit-backend
+    volumes:
+      - conduit-volume:/app/db.sqlite3
+    ports:
+      - 8383:8000
+    restart: on-failure
+    networks:
+      - conduit-network
+
+volumes:
+  conduit-volume:
+
+networks:
+  conduit-network:
