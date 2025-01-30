@@ -17,7 +17,8 @@ services:
     env_file: .env
     container_name: conduit-backend
     volumes:
-      - conduit-volume:/app/db.sqlite3
+      # mount for the database directory
+      - conduit-volume:/app/db
     ports:
       - 8383:8000
     restart: on-failure
