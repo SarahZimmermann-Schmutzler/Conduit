@@ -14,8 +14,6 @@ services:
   backend:
     build:
       context: ./conduit-backend
-      args:
-        API_URL: ${API_URL}
     env_file: .env
     container_name: conduit-backend
     volumes:
