@@ -358,3 +358,6 @@ Often the frontend and backend are hosted on different servers. A clear option i
     print(settings.CORS_ORIGINS_WHITELIST)
     print(settings.ALLOWED_HOSTS)
     ```
+
+> [!NOTE]
+> It is possible that not all features of the conduit app are working properly. It may be that paths for certain API endpoints in various frontend services need to be adjusted.
