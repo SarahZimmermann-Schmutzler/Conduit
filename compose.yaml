@@ -4,6 +4,7 @@ services:
     build:
       context: ./conduit-frontend
       args:
+        # passes the value from .env to Dockerfile for building process
         - API_URL=${API_URL}
     env_file: .env
     container_name: conduit-frontend
