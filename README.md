@@ -57,7 +57,7 @@ Often the frontend and backend are hosted on different servers. A clear option i
 1. Configure the **environment variables**:
     * Copy the content of the [`example.env`](./example.env) file into an .env file.
 
-    * The new `.env file` should contain all the environment variables necessary to run the frontend and backend application!
+    * The new `.env` file should contain all the environment variables necessary to run the frontend and backend application!
 
 1. **Build and start the containers** in the background (detached mode):
 
@@ -108,7 +108,7 @@ Often the frontend and backend are hosted on different servers. A clear option i
     sudo nano .env
     ```
 
-    * The new `.env file` should contain all the environment variables necessary to run the frontend and backend application:
+    * The new `.env` file should contain all the environment variables necessary to run the frontend and backend application:
 
     ```bash
     # variables for conduit-backend
@@ -195,7 +195,7 @@ Often the frontend and backend are hosted on different servers. A clear option i
     * **Backend-Service**:
         * It creates a volume (conduit-volume), i.e. a persistent data storage, for the sqlite database.
 
-1. The [`Frontend-Dockerfile`](./conduit-frontend/Dockerfile) describes how a single Docker image for the frontend-container should be created:
+1. The [`Frontend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-frontend/blob/master/Dockerfile) describes how a single Docker image for the frontend-container should be created:
 
      ```bash
     # 1: Build the Angular application
@@ -242,7 +242,7 @@ Often the frontend and backend are hosted on different servers. A clear option i
     # standard command in ngnix:1.26.2-alpine image is CMD ["nginx", "-g", "daemon off;"]
     ```
 
-1. Also the [`Backend-Dockerfile`](./conduit-backend/Dockerfile) serves as the basis for the corresponding service in the Docker Compose file:
+1. Also the [`Backend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/Dockerfile) serves as the basis for the corresponding service in the Docker Compose file:
 
     ```bash
     # Stage 1: Build the dependencies in an isolated environment
@@ -279,7 +279,7 @@ Often the frontend and backend are hosted on different servers. A clear option i
     ENTRYPOINT ["/app/entrypoint.sh"]
     ```
 
-1. The [`entrypoint.sh`](./conduit-backend/entrypoint.sh) is used in combination with the backend's Dockerfile to initialize and configure the backend-container and executing the main command:
+1. The [`entrypoint.sh`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/entrypoint.sh) is used in combination with the backend's Dockerfile to initialize and configure the backend-container and executing the main command:
 
     ```bash
     #!/usr/bin/env bash
@@ -334,7 +334,7 @@ Often the frontend and backend are hosted on different servers. A clear option i
 * Browse to your **IP_ADDRESS:8383/admin** to open the `Backend`, you should see this:
     ![conduit-backend](./backend.png)
 
-* If there is any problem with the frontend-backend-connection (f.e.CORS-Error) check if your ip-address is correctly set in the `.env`.
+* If there is any **problem with the frontend-backend-connection** (f.e.CORS-Error) check if your ip-address is correctly set in the `.env`.
 
   * To check if the variables are correctly transferred into the container:
 
