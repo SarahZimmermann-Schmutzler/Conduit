@@ -48,6 +48,13 @@ Often the frontend and backend are hosted on different servers. A clear option i
     git clone git@github.com:SarahZimmermann-Schmutzler/Conduit.git
     ```
 
+1. Init and update the **submodules**:
+
+    ```bash
+    git submodule init
+    git submodule update
+    ```
+
 1. Make the `entrypoint.sh` **executable** in the conduit-backend directory if necessary:
 
     ```bash
@@ -82,6 +89,13 @@ Often the frontend and backend are hosted on different servers. A clear option i
 
     ```bash
     git clone git@github.com:SarahZimmermann-Schmutzler/Conduit.git
+    ```
+
+1. Init and update the **submodules**:
+
+    ```bash
+    git submodule init
+    git submodule update
     ```
 
 1. It may be that the `entrypoint.sh` file of the conduit-backend needs to be made **executable**:
