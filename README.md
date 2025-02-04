@@ -48,17 +48,30 @@ Often the frontend and backend are hosted on different servers. A clear option i
     git clone git@github.com:SarahZimmermann-Schmutzler/Conduit.git
     ```
 
-1. Make the `entrypint.sh` **executable** in the conduit-backend directory if necessary:
+1. Make the `entrypoint.sh` **executable** in the conduit-backend directory if necessary:
 
     ```bash
     chmod 777 entrypoint.sh
     ```
 
-1. **Build and start the container** in the background (detached mode):
+1. Configure the **environment variables**:
+    * Copy the content of the [`example.env`](./example.env) file into an .env file.
+
+    * The new `.env file` should contain all the environment variables necessary to run the frontend and backend application!
+
+1. **Build and start the containers** in the background (detached mode):
 
     ```bash
     docker compose up --build -d
     ```
+
+1. Check whether the **containers are running** correctly:
+
+* Browse to your **IP_ADDRESS:8282** to open the `Frontend`, you should see something like this:
+    ![conduit-frontend](./frontend.png)
+
+* Browse to your **IP_ADDRESS:8383/admin** to open the `Backend`, you should see this:
+    ![conduit-backend](./backend.png)
 
 ## Usage
 
@@ -185,95 +198,149 @@ Often the frontend and backend are hosted on different servers. A clear option i
 1. The [`Frontend-Dockerfile`](./conduit-frontend/Dockerfile) describes how a single Docker image for the frontend-container should be created:
 
      ```bash
-    
+    # 1: Build the Angular application
+    # Base image for the build step
+    FROM node:20-alpine AS build
+
+    # Set the working directory inside the container
+    WORKDIR /app
+
+    # Copy only dependency files first
+    COPY package.json package-lock.json $WORKDIR
+
+    # Install dependencies with npm
+    RUN npm install --legacy-peer-deps --prefer-offline --no-audit
+
+    # Copy all project files into the container
+    COPY . $WORKDIR
+
+    # Define a build-time variable for the API URL
+    ARG API_URL
+
+    # Set an environment variable for runtime, initialized with the ARG value
+    ENV API_URL=${API_URL}
+
+    # Build Angular frontend
+    RUN echo "export const environment = { production: true, apiUrl: '$API_URL' };" > src/environments/environment.ts && \
+         echo "export const environment = { production: true, apiUrl: '$API_URL' };" > src/environments/environment.development.ts && \
+         #cat src/environments/environment.ts && \
+         #cat src/environments/environment.development.ts && \
+         npm run build
+
+
+    # 2: Serve the application using Nginx
+    # Lightweight Nginx image for serving the application
+    FROM nginx:1.26.2-alpine
+
+    # Copy the built Angular application from the previous stage into the Nginx HTML directory
+    COPY --from=build /app/dist/angular-conduit /usr/share/nginx/html
+
+    # Expose port 80 for the Nginx server
+    EXPOSE 80
+
+    # Start Nginx
+    # standard command in ngnix:1.26.2-alpine image is CMD ["nginx", "-g", "daemon off;"]
     ```
 
 1. Also the [`Backend-Dockerfile`](./conduit-backend/Dockerfile) serves as the basis for the corresponding service in the Docker Compose file:
 
-1. The Entrypoint
+    ```bash
+    # Stage 1: Build the dependencies in an isolated environment
+    # base image (specific to the app's requirements)
+    FROM python:3.6-slim AS builder
+
+    WORKDIR /app
+
+    # Copy only the requirements file to install dependencies
+    COPY requirements.txt $WORKDIR
+
+    # Upgrade pip and install dependencies
+    RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+    # Stage 2: Copy application files into a lightweight image
+    FROM python:3.6-slim
+
+    WORKDIR /app
+
+    # Copy only the installed dependencies from the builder stage
+    COPY --from=builder /usr/local /usr/local
+
+    # Copy the project files into the container
+    COPY . $WORKDIR
+
+    # Make the entrypoint script executable
+    RUN chmod +x /app/entrypoint.sh
+
+    # Expose the port for Gunicorn
+    EXPOSE 8000
+
+    # Use the entrypoint script to start the app
+    ENTRYPOINT ["/app/entrypoint.sh"]
+    ```
+
+1. The [`entrypoint.sh`](./conduit-backend/entrypoint.sh) is used in combination with the backend's Dockerfile to initialize and configure the backend-container and executing the main command:
+
+    ```bash
+    #!/usr/bin/env bash
+
+    # Exit immediately if any command exits with a non-zero status
+    set -e
+
+
+    # Step 1: Run database migrations
+    echo "Running database migrations..."
+    python manage.py makemigrations || { echo "Makemigrations failed"; exit 1; }
+    python manage.py migrate || { echo "Migration failed"; exit 1; }
+
+
+    # Step 2: Create a superuser
+    echo "Creating superuser..."
+    python manage.py createsuperuser --noinput \
+        --email "$DJANGO_SUPERUSER_EMAIL" \
+        --username "$DJANGO_SUPERUSER_USERNAME"
+
+
+    # Step 3: Start the Django server 
+    #echo "Starting the server..."
+    python manage.py runserver 0.0.0.0:8000
+    ```
 
 #### The Use
 
-1. **Build and start the container** in the background (detached mode):
+1. **Build and start the containers** in the background (detached mode):
 
     ```bash
     docker compose up --build -d
     ```
 
-    * To view the log files:
+    * To save the log files:
 
         ```bash
-        docker compose logs -f
+        docker logs <container-name> > backend-log.txt
         ```
 
-    * To stop the container:
+        * Example for backend-container:
 
         ```bash
-        docker compose stop <container-name>
+        docker logs conduit-backend > backend-log.txt
         ```
 
-    * To delete the container:
+1. Check whether the **containers are running** correctly:
 
-        ```bash
-        docker compose down <container-name>
-        ```
+* Browse to your **IP_ADDRESS:8282** to open the `Frontend`, you should see something like this:
+    ![conduit-frontend](./frontend.png)
 
-    * To list all containers that are operatet by Docker Compose:
+* Browse to your **IP_ADDRESS:8383/admin** to open the `Backend`, you should see this:
+    ![conduit-backend](./backend.png)
 
-        ```bash
-        docker compose ps
-        ```
+* If there is any problem with the frontend-backend-connection (f.e.CORS-Error) check if your ip-address is correctly set in the `.env`.
 
-1. Check whether the **server is running** correctly:
+  * To check if the variables are correctly transferred into the container:
 
-* If you have a *Minecraft account*: You can connect to the server on your cloud VM from your [Java Minecraft client](https://www.minecraft.net/de-de/download) on your computer and play Minecraft.
-
-* Use a [website](https://mcstatus.io/) that offers status checks for Minecraft Servers or try to establish a connection to the Minecraft Server using the [python `mcstatus` module](https://github.com/py-mine/mcstatus).
-
-  * <ins>mcstatus.io</ins>:
-    ![mcsrv](./mcsrv.png)
-
-  * <ins>python module `mctatus`</ins>:
-    * Intall the module:
-
-        ```bash
-        python -m pip install mcstatus
-        ```
-
-    * Write a python script. A proper template is given [here](https://github.com/py-mine/mcstatus?tab=readme-ov-file#java-edition):
-
-        ```bash
-        from mcstatus import JavaServer
-        # status for Java Edition Server
-
-        # You can pass the same address you'd enter into the address field in minecraft into the 'lookup' function
-        # If you know the host and port, you may skip this and use JavaServer("example.org", 1234)
-        # server = JavaServer.lookup("example.org:1234")
-        server = JavaServer("IP_ADDRESS_VM", 8888)
-
-        # 'status' is supported by all Minecraft servers that are version 1.7 or higher.
-        # Don't expect the player list to always be complete, because many servers run
-        # plugins that hide this information or limit the number of players returned or even
-        # alter this list to contain fake players for purposes of having a custom message here.
-        status = server.status()
-        print(f"The server has {status.players.online} player(s) online and replied in {status.latency} ms")
-
-        # 'ping' is supported by all Minecraft servers that are version 1.7 or higher.
-        # It is included in a 'status' call, but is also exposed separate if you do not require the additional info.
-        latency = server.ping()
-        print(f"The server replied in {latency} ms")
-
-        # 'query' has to be enabled in a server's server.properties file!
-        # It may give more information than a ping, such as a full player list or mod information.
-        # query = server.query()
-        # print(f"The server has the following players online: {', '.join(query.players.names)}")
-        ```
-
-    * <ins>Result</ins>:  
-        ![mc_status](./mc_status.png)
-
-> [!NOTE]
-> The Minecraft server can be reached under the *IP address of your cloud VM on port 8888*: `http://IP_Address_VM:8888`.  
-> The **ERR_EMPTY_RESPONSE** error message means that the browser tried to communicate with the server but did not receive any data. This **is to be expected** since a Minecraft Server doesn't send HTTP data that a browser can interpret. The Minecraft server uses Minecraft's own protocol, which is not compatible with a web browser.The Minecraft Server is running correctly and listening on the specified port (e.g. 8888), but it only responds to requests from Minecraft clients, not HTTP requests.  
-> ![ip_address:8888](./ipaddress.png)
-
+    ```bash
+    docker compose exec backend python manage.py shell
+    from django.conf import settings
+    print(settings.CORS_ORIGINS_WHITELIST)
+    print(settings.ALLOWED_HOSTS)
+    ```
