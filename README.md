@@ -55,12 +55,6 @@ Often the frontend and backend are hosted on different servers. A clear option i
     git submodule update
     ```
 
-1. Make the `entrypoint.sh` **executable** in the conduit-backend directory if necessary:
-
-    ```bash
-    chmod 777 entrypoint.sh
-    ```
-
 1. Configure the **environment variables**:
     * Copy the content of the [`example.env`](./example.env) file into an .env file.
 
@@ -96,19 +90,6 @@ Often the frontend and backend are hosted on different servers. A clear option i
     ```bash
     git submodule init
     git submodule update
-    ```
-
-1. It may be that the `entrypoint.sh` file of the conduit-backend needs to be made **executable**:
-    * View rights of the files in the conduit-backend directory:
-
-    ```bash
-    ls -l
-    ```
-
-    * Set execute permissions if they don't exist:
-
-    ```bash
-    chmod 777 entrypoint.sh
     ```
 
 1. Configure the **environment variables**:
