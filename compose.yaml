@@ -3,13 +3,14 @@ services:
   frontend:
     build:
       context: ./conduit-frontend
+      dockerfile: Dockerfile
       args:
         # passes the value from .env to Dockerfile for building process
         - API_URL=${API_URL}
     env_file: .env
     container_name: conduit-frontend
     ports:
-      - 8282:80
+      - "${FRONTEND_EXTERNAL_PORT}:${FRONTEND_INTERNAL_PORT}"
     restart: on-failure
     networks:
       - conduit-network
@@ -17,13 +18,14 @@ services:
   backend:
     build:
       context: ./conduit-backend
+      dockerfile: Dockerfile
     env_file: .env
     container_name: conduit-backend
     volumes:
       # mount for the database directory
       - conduit-volume:/app/db
     ports:
-      - 8383:8000
+      - "${BACKEND_EXTERNAL_PORT}:${BACKEND_INTERNAL_PORT}"
     restart: on-failure
     networks:
       - conduit-network

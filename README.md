@@ -64,7 +64,7 @@ Often the frontend and backend are hosted on different servers. A clear option i
 1. Configure the **environment variables**:
     * Copy the content of the [`example.env`](./example.env) file into an .env file.
 
-    * The new `.env` file should contain all the environment variables necessary to run the frontend and backend application!
+    * The new `.env` file should contain all the environment variables - **all of them are required** to run the frontend and backend application!
 
 1. **Build and start the containers** in the background (detached mode):
 
@@ -112,89 +112,28 @@ Often the frontend and backend are hosted on different servers. A clear option i
     ```
 
 1. Configure the **environment variables**:
-    * Copy the content of the [`example.env`](./example.env) file into an .env file:
+    * Copy the content of the [`example.env`](./example.env) file into an .env file. It should contain all the environment variables - **all of them are required** to run the frontend and backend application:
 
-    ```bash
-    cp example.env .env
-    ```
-
-    ```bash
-    sudo nano .env
-    ```
-
-    * The new `.env` file should contain all the environment variables necessary to run the frontend and backend application:
-
-    ```bash
-    # variables for conduit-backend
-
-    # essential cryptographic key used by Django to protect sensitive data and provide security-critical functionality
-    SECRET_KEY=
-
-    # set False for production mode 
-    DEBUG=True
-
-    # adds the host server (Frontend, IP:8282) to the CORS_ORIGIN_WHITELIST list
-    IP_ADDRESS_VM_PORT=
-
-    # adds the host server to the ALOWED_HOSTS list
-    IP_ADDRESS_VM=
-
-    # creates a superuser for the admin panel
-    DJANGO_SUPERUSER_USERNAME=
-    DJANGO_SUPERUSER_EMAIL=
-    DJANGO_SUPERUSER_PASSWORD=
-
-
-    # variables for conduit-frontend
-
-    # adds backend server (IP:8383/api) to the environment.ts
-    API_URL=
-    ```
+    | Variable | Description | Type | Default Value |
+    | -------- | ----------- | ---- | ------------- |
+    | SECRET_KEY | Essential cryptographic key used by Django to protect sensitive data and provide security-critical functionality | string | 2^f+4@v7$v1f9yt0!s)2-1t$)tlp+&m17=*g))_xoi&&9m#2ax |
+    | BACKEND_INTERNAL_PORT | Internal portnumber for backend-container | string | 8000 |
+    | BACKEND_EXTERNAL_PORT | External portnumber for backend-container | string | 8383 |
+    | FRONTEND_INTERNAL_PORT | Internal portnumber for frontend-container | string | 80 |
+    | FRONTEND_EXTERNAL_PORT | External portnumber for frontend-container | string | 8282 |
+    | DEBUG | Set False for production mode | boolean | True |
+    | IP_ADDRESS_VM_WITH_PORT | Adds the host server (Frontend-IP with portnumber) to the CORS_ORIGIN_WHITELIST list | string | 127.0.0.1:8282 |
+    | IP_ADDRESS_VM | Adds the host server to the ALLOWED_HOSTS list | string | 127.0.0.1 |
+    | DJANGO_SUPERUSER_USERNAME | Username to create a superuser for the admin panel | string | admin |
+    | DJANGO_SUPERUSER_EMAIL | Email address to create a superuser for the admin panel | string | admin@test.de |
+    | DJANGO_SUPERUSER_PASSWORD | Password to create a superuser for the admin panel | string | changeMe123 |
+    | API_URL | Adds backend server to the frontend (environment.ts) | string | http://127.0.0.1:8383/api |
 
 ### Containerization with Docker Compose
 
 #### The Files
 
 1. The [`compose.yaml`](./compose.yaml) is responsible for managing and orchestrating the frontend and backend container. It defines what configurations they should have:
-
-    ```bash
-    version: "3.8"
-    
-    services:
-        frontend:
-            build:
-                context: ./conduit-frontend
-                args:
-                    # passes the value from .env to Dockerfile for building process
-                    - API_URL=${API_URL}
-            env_file: .env
-            container_name: conduit-frontend
-            ports:
-                - 8282:80
-            restart: on-failure
-            networks:
-                - conduit-network
-
-        backend:
-            build:
-                context: ./conduit-backend
-            env_file: .env
-            container_name: conduit-backend   
-            volumes:
-                # mount for the database directory
-                - conduit-volume:/app/db
-            ports:
-                - 8383:8000
-            restart: on-failure
-            networks:
-                - conduit-network
-
-    volumes:
-        conduit-volume:
-
-    networks:
-        conduit-network:
-    ```
 
     * One service each is created for the frontend and the backend application:
         * Both:
@@ -203,7 +142,7 @@ Often the frontend and backend are hosted on different servers. A clear option i
             * use the .env file to set variables
             * are in the same network (conduit-network)
             * restart in the event of an error that causes the container to terminate (restart on-failure)
-            * have a port mapped through which they can be reached from the Internet (frontend:8282 and backend:8383)
+            * have a port mapped through which they can be reached from the Internet (frontend:8282 and backend:8383; can be customized via the .env)
     * **Frontend-Service**:
         * The args-parameter passes the value of `API_URL` (URL of backend to connect frontend and backend application) from .env to Dockerfile so that it is available during the build process.
     * **Backend-Service**:
@@ -211,114 +150,41 @@ Often the frontend and backend are hosted on different servers. A clear option i
 
 1. The [`Frontend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-frontend/blob/master/Dockerfile) describes how a single Docker image for the frontend-container should be created:
 
-     ```bash
-    # 1: Build the Angular application
-    # Base image for the build step
-    FROM node:20-alpine AS build
+* This Dockerfile uses a multi-stage build to efficiently create and serve an Angular application with Nginx.
+* Stage 1 (Build Stage):
+  * Uses node:20-alpine for a lightweight Node.js environment.
+  * Installs dependencies using npm install --legacy-peer-deps --prefer-offline for better compatibility and faster builds.
+  * Copies the application files and builds the Angular project.
+  * Dynamically sets the API_URL at build time and injects it into the Angular environment configuration.
+* Stage 2 (Runtime Stage):
+  * Uses nginx:1.26.2-alpine to serve the built Angular application.
+  * Copies the compiled frontend from the build stage to the Nginx web root.
+  * Exposes port 80 for serving the application.
+  * Runs Nginx with the default startup command.
 
-    # Set the working directory inside the container
-    WORKDIR /app
-
-    # Copy only dependency files first
-    COPY package.json package-lock.json $WORKDIR
-
-    # Install dependencies with npm
-    RUN npm install --legacy-peer-deps --prefer-offline --no-audit
-
-    # Copy all project files into the container
-    COPY . $WORKDIR
-
-    # Define a build-time variable for the API URL
-    ARG API_URL
-
-    # Set an environment variable for runtime, initialized with the ARG value
-    ENV API_URL=${API_URL}
-
-    # Build Angular frontend
-    RUN echo "export const environment = { production: true, apiUrl: '$API_URL' };" > src/environments/environment.ts && \
-         echo "export const environment = { production: true, apiUrl: '$API_URL' };" > src/environments/environment.development.ts && \
-         #cat src/environments/environment.ts && \
-         #cat src/environments/environment.development.ts && \
-         npm run build
-
-
-    # 2: Serve the application using Nginx
-    # Lightweight Nginx image for serving the application
-    FROM nginx:1.26.2-alpine
-
-    # Copy the built Angular application from the previous stage into the Nginx HTML directory
-    COPY --from=build /app/dist/angular-conduit /usr/share/nginx/html
-
-    # Expose port 80 for the Nginx server
-    EXPOSE 80
-
-    # Start Nginx
-    # standard command in ngnix:1.26.2-alpine image is CMD ["nginx", "-g", "daemon off;"]
-    ```
 
 1. Also the [`Backend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/Dockerfile) serves as the basis for the corresponding service in the Docker Compose file:
 
-    ```bash
-    # Stage 1: Build the dependencies in an isolated environment
-    # base image (specific to the app's requirements)
-    FROM python:3.6-slim AS builder
-
-    WORKDIR /app
-
-    # Copy only the requirements file to install dependencies
-    COPY requirements.txt $WORKDIR
-
-    # Upgrade pip and install dependencies
-    RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-    # Stage 2: Copy application files into a lightweight image
-    FROM python:3.6-slim
-
-    WORKDIR /app
-
-    # Copy only the installed dependencies from the builder stage
-    COPY --from=builder /usr/local /usr/local
-
-    # Copy the project files into the container
-    COPY . $WORKDIR
-
-    # Make the entrypoint script executable
-    RUN chmod +x /app/entrypoint.sh
-
-    # Expose the port for Gunicorn
-    EXPOSE 8000
-
-    # Use the entrypoint script to start the app
-    ENTRYPOINT ["/app/entrypoint.sh"]
-    ```
+* Uses a multi-stage build to create a lightweight and efficient Python 3.6-based container for this Django conduit-backend application
+* Stage 1 (Builder Stage):
+  * Uses python:3.6-slim as the base image.
+  * Copies and installs dependencies from requirements.txt in an isolated environment to reduce the final image size.
+* Stage 2 (Final Runtime Stage):
+  * Copies only the necessary dependencies from the builder stage.
+  * Copies the application source code into the container.
+  * Exposes port 8000 for the application.
+  * Sets the entrypoint script (entrypoint.sh) as executable and uses it to start the application.
 
 1. The [`entrypoint.sh`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/entrypoint.sh) is used in combination with the backend's Dockerfile to initialize and configure the backend-container and executing the main command:
 
-    ```bash
-    #!/usr/bin/env bash
-
-    # Exit immediately if any command exits with a non-zero status
-    set -e
-
-
-    # Step 1: Run database migrations
-    echo "Running database migrations..."
-    python manage.py makemigrations || { echo "Makemigrations failed"; exit 1; }
-    python manage.py migrate || { echo "Migration failed"; exit 1; }
-
-
-    # Step 2: Create a superuser
-    echo "Creating superuser..."
-    python manage.py createsuperuser --noinput \
-        --email "$DJANGO_SUPERUSER_EMAIL" \
-        --username "$DJANGO_SUPERUSER_USERNAME"
-
-
-    # Step 3: Start the Django server 
-    #echo "Starting the server..."
-    python manage.py runserver 0.0.0.0:8000
-    ```
+* The script exits immediately if any command fails, preventing further execution with errors.
+* Step 1 - Database Migration:
+  * Runs makemigrations and migrate to apply any pending database changes - If migrations fail, the script exits with an error message.
+* Step 2 - Superuser Creation:
+  * Creates a Django superuser using environment variables (DJANGO_SUPERUSER_EMAIL & DJANGO_SUPERUSER_USERNAME).
+  * Runs in non-interactive mode (--noinput) to avoid prompts inside the container.
+* Step 3 - Starting the Django Server:
+  * Launches the development server on 0.0.0.0:8000, making it accessible from outside the container.
 
 #### The Use
 
