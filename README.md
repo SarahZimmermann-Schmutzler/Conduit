@@ -150,41 +150,40 @@ Often the frontend and backend are hosted on different servers. A clear option i
 
 1. The [`Frontend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-frontend/blob/master/Dockerfile) describes how a single Docker image for the frontend-container should be created:
 
-* This Dockerfile uses a multi-stage build to efficiently create and serve an Angular application with Nginx.
-* Stage 1 (Build Stage):
-  * Uses node:20-alpine for a lightweight Node.js environment.
-  * Installs dependencies using npm install --legacy-peer-deps --prefer-offline for better compatibility and faster builds.
-  * Copies the application files and builds the Angular project.
-  * Dynamically sets the API_URL at build time and injects it into the Angular environment configuration.
-* Stage 2 (Runtime Stage):
-  * Uses nginx:1.26.2-alpine to serve the built Angular application.
-  * Copies the compiled frontend from the build stage to the Nginx web root.
-  * Exposes port 80 for serving the application.
-  * Runs Nginx with the default startup command.
-
+    * This Dockerfile uses a multi-stage build to efficiently create and serve an Angular application with Nginx.
+    * **Stage 1 (Build Stage)**:
+        * Uses node:20-alpine for a lightweight Node.js environment.
+        * Installs dependencies using npm install --legacy-peer-deps --prefer-offline for better compatibility and faster builds.
+        * Copies the application files and builds the Angular project.
+        * Dynamically sets the API_URL at build time and injects it into the Angular environment configuration.
+    * **Stage 2 (Runtime Stage)**:
+        * Uses nginx:1.26.2-alpine to serve the built Angular application.
+        * Copies the compiled frontend from the build stage to the Nginx web root.
+        * Exposes port 80 for serving the application.
+        * Runs Nginx with the default startup command.
 
 1. Also the [`Backend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/Dockerfile) serves as the basis for the corresponding service in the Docker Compose file:
 
-* Uses a multi-stage build to create a lightweight and efficient Python 3.6-based container for this Django conduit-backend application
-* Stage 1 (Builder Stage):
-  * Uses python:3.6-slim as the base image.
-  * Copies and installs dependencies from requirements.txt in an isolated environment to reduce the final image size.
-* Stage 2 (Final Runtime Stage):
-  * Copies only the necessary dependencies from the builder stage.
-  * Copies the application source code into the container.
-  * Exposes port 8000 for the application.
-  * Sets the entrypoint script (entrypoint.sh) as executable and uses it to start the application.
+    * Uses a multi-stage build to create a lightweight and efficient Python 3.6-based container for this Django conduit-backend application
+    * **Stage 1 (Builder Stage)**:
+        * Uses python:3.6-slim as the base image.
+        * Copies and installs dependencies from requirements.txt in an isolated environment to reduce the final image size.
+    * **Stage 2 (Final Runtime Stage)**:
+      * Copies only the necessary dependencies from the builder stage.
+        * Copies the application source code into the container.
+        * Exposes port 8000 for the application.
+        * Sets the entrypoint script (entrypoint.sh) as executable and uses it to start the application.
 
 1. The [`entrypoint.sh`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/entrypoint.sh) is used in combination with the backend's Dockerfile to initialize and configure the backend-container and executing the main command:
 
-* The script exits immediately if any command fails, preventing further execution with errors.
-* Step 1 - Database Migration:
-  * Runs makemigrations and migrate to apply any pending database changes - If migrations fail, the script exits with an error message.
-* Step 2 - Superuser Creation:
-  * Creates a Django superuser using environment variables (DJANGO_SUPERUSER_EMAIL & DJANGO_SUPERUSER_USERNAME).
-  * Runs in non-interactive mode (--noinput) to avoid prompts inside the container.
-* Step 3 - Starting the Django Server:
-  * Launches the development server on 0.0.0.0:8000, making it accessible from outside the container.
+    * The script exits immediately if any command fails, preventing further execution with errors.
+    * **Step 1 - Database Migration**:
+        * Runs makemigrations and migrate to apply any pending database changes - If migrations fail, the script exits with an error message.
+    * **Step 2 - Superuser Creation**:
+        * Creates a Django superuser using environment variables (DJANGO_SUPERUSER_EMAIL & DJANGO_SUPERUSER_USERNAME).
+        * Runs in non-interactive mode (--noinput) to avoid prompts inside the container.
+    * **Step 3 - Starting the Django Server**:
+        * Launches the development server on 0.0.0.0:8000, making it accessible from outside the container.
 
 #### The Use
 
