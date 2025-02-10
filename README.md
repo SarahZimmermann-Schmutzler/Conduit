@@ -101,7 +101,7 @@ Often the frontend and backend are hosted on different servers. A clear option i
     | BACKEND_EXTERNAL_PORT | External portnumber for backend-container | string | 8383 |
     | FRONTEND_EXTERNAL_PORT | External portnumber for frontend-container | string | 8282 |
     | DEBUG | Set False for production mode | boolean | True |
-    | IP_ADDRESS_VM_WITH_PORT | Adds the host server (Frontend-IP with portnumber) to the CORS_ORIGIN_WHITELIST list | string | 127.0.0.1:8282 |
+    | CORS_ORIGIN_WHITELIST | Adds the CORS_ORIGIN_WHITELIST (hosts with portnumber) | string | "127.0.0.1:8282,localhost:8282" |
     | IP_ADDRESS_VM | Adds the host server to the ALLOWED_HOSTS list | string | 127.0.0.1 |
     | DJANGO_SUPERUSER_USERNAME | Username to create a superuser for the admin panel | string | admin |
     | DJANGO_SUPERUSER_EMAIL | Email address to create a superuser for the admin panel | string | admin@test.de |
