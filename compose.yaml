@@ -10,7 +10,7 @@ services:
     env_file: .env
     container_name: conduit-frontend
     ports:
-      - "${FRONTEND_EXTERNAL_PORT}:${FRONTEND_INTERNAL_PORT}"
+      - ${FRONTEND_EXTERNAL_PORT}:80
     restart: on-failure
     networks:
       - conduit-network
@@ -25,7 +25,7 @@ services:
       # mount for the database directory
       - conduit-volume:/app/db
     ports:
-      - "${BACKEND_EXTERNAL_PORT}:${BACKEND_INTERNAL_PORT}"
+      - ${BACKEND_EXTERNAL_PORT}:8000
     restart: on-failure
     networks:
       - conduit-network

@@ -97,10 +97,8 @@ Often the frontend and backend are hosted on different servers. A clear option i
 
     | Variable | Description | Type | Default Value |
     | -------- | ----------- | ---- | ------------- |
-    | SECRET_KEY | Essential cryptographic key used by Django to protect sensitive data and provide security-critical functionality | string | 2^f+4@v7$v1f9yt0!s)2-1t$)tlp+&m17=*g))_xoi&&9m#2ax |
-    | BACKEND_INTERNAL_PORT | Internal portnumber for backend-container | string | 8000 |
+    | SECRET_KEY | Essential cryptographic key used by Django to protect sensitive data and provide security-critical functionality | string | secret |
     | BACKEND_EXTERNAL_PORT | External portnumber for backend-container | string | 8383 |
-    | FRONTEND_INTERNAL_PORT | Internal portnumber for frontend-container | string | 80 |
     | FRONTEND_EXTERNAL_PORT | External portnumber for frontend-container | string | 8282 |
     | DEBUG | Set False for production mode | boolean | True |
     | IP_ADDRESS_VM_WITH_PORT | Adds the host server (Frontend-IP with portnumber) to the CORS_ORIGIN_WHITELIST list | string | 127.0.0.1:8282 |
@@ -114,57 +112,13 @@ Often the frontend and backend are hosted on different servers. A clear option i
 
 #### The Files
 
-1. The [`compose.yaml`](./compose.yaml) is responsible for managing and orchestrating the frontend and backend container. It defines what configurations they should have:
+1. One service each is created for the frontend and the backend application. The [`compose.yaml`](./compose.yaml) is responsible for managing and orchestrating the frontend and backend container. It defines what configurations they should have.
 
-    * One service each is created for the frontend and the backend application:
-        * Both:
-            * take the build context (Dockerfile) from the corresponding folders
-            * name their container (conduit-frontend and conduit-backend)
-            * use the .env file to set variables
-            * are in the same network (conduit-network)
-            * restart in the event of an error that causes the container to terminate (restart on-failure)
-            * have a port mapped through which they can be reached from the Internet (frontend:8282 and backend:8383; can be customized via the .env)
-    * **Frontend-Service**:
-        * The args-parameter passes the value of `API_URL` (URL of backend to connect frontend and backend application) from .env to Dockerfile so that it is available during the build process.
-    * **Backend-Service**:
-        * It creates a volume (conduit-volume), i.e. a persistent data storage, for the sqlite database.
+1. The [`Frontend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-frontend/blob/master/Dockerfile) describes how a single Docker image for the frontend-container should be created.
 
-1. The [`Frontend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-frontend/blob/master/Dockerfile) describes how a single Docker image for the frontend-container should be created:
+1. Also the [`Backend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/Dockerfile) serves as the basis for the corresponding service in the Docker Compose file.
 
-    * This Dockerfile uses a multi-stage build to efficiently create and serve an Angular application with Nginx.
-    * **Stage 1 (Build Stage)**:
-        * Uses node:20-alpine for a lightweight Node.js environment.
-        * Installs dependencies using npm install --legacy-peer-deps --prefer-offline for better compatibility and faster builds.
-        * Copies the application files and builds the Angular project.
-        * Dynamically sets the API_URL at build time and injects it into the Angular environment configuration.
-    * **Stage 2 (Runtime Stage)**:
-        * Uses nginx:1.26.2-alpine to serve the built Angular application.
-        * Copies the compiled frontend from the build stage to the Nginx web root.
-        * Exposes port 80 for serving the application.
-        * Runs Nginx with the default startup command.
-
-1. Also the [`Backend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/Dockerfile) serves as the basis for the corresponding service in the Docker Compose file:
-
-    * Uses a multi-stage build to create a lightweight and efficient Python 3.6-based container for this Django conduit-backend application
-    * **Stage 1 (Builder Stage)**:
-        * Uses python:3.6-slim as the base image.
-        * Copies and installs dependencies from requirements.txt in an isolated environment to reduce the final image size.
-    * **Stage 2 (Final Runtime Stage)**:
-      * Copies only the necessary dependencies from the builder stage.
-        * Copies the application source code into the container.
-        * Exposes port 8000 for the application.
-        * Sets the entrypoint script (entrypoint.sh) as executable and uses it to start the application.
-
-1. The [`entrypoint.sh`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/entrypoint.sh) is used in combination with the backend's Dockerfile to initialize and configure the backend-container and executing the main command:
-
-    * The script exits immediately if any command fails, preventing further execution with errors.
-    * **Step 1 - Database Migration**:
-        * Runs makemigrations and migrate to apply any pending database changes - If migrations fail, the script exits with an error message.
-    * **Step 2 - Superuser Creation**:
-        * Creates a Django superuser using environment variables (DJANGO_SUPERUSER_EMAIL & DJANGO_SUPERUSER_USERNAME).
-        * Runs in non-interactive mode (--noinput) to avoid prompts inside the container.
-    * **Step 3 - Starting the Django Server**:
-        * Launches the development server on 0.0.0.0:8000, making it accessible from outside the container.
+1. The [`entrypoint.sh`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/entrypoint.sh) is used in combination with the backend's Dockerfile to initialize and configure the backend-container and executing the main command.
 
 #### The Use
 
