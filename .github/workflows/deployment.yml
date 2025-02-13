@@ -1,0 +1,59 @@
+name: Deploy Conduit
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment via SSH connection
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            
+            DEPLOY_DIR="${{ vars.DEPLOY_DIR }}"
+            cd "$DEPLOY_DIR"
+
+            echo "Update or clone the Conduit repository"
+            if [ -d "Conduit" ]; then
+              cd "$DEPLOY_DIR/Conduit"
+              docker compose down
+              docker rmi conduit-frontend conduit-backend
+              docker volume rm conduit_conduit-volume
+              docker builder prune -a
+              git pull
+              git submodule update --remote --recursive
+            else
+              git clone git@github.com:SarahZimmermann-Schmutzler/Conduit.git
+              cd "$DEPLOY_DIR/Conduit"
+              git submodule init
+              git submodule update
+            fi
+
+            echo "Create .env if necessary"
+            if [ -f ".env" ]; then
+              echo ".env is already existing"
+            else
+              cat <<EOF > .env
+              SECRET_KEY=${{ secrets.SECRET_KEY }}
+              DEBUG=${{ vars.DEBUG }}
+              BACKEND_EXTERNAL_PORT=${{ vars.BACKEND_EXTERNAL_PORT }}
+              IP_ADDRESS_VM=${{ vars.IP_ADDRESS_VM }}
+              CORS_ORIGIN_WHITELIST=${{ vars.CORS_ORIGIN_WHITELIST }}
+              DJANGO_SUPERUSER_USERNAME=${{ vars.DJANGO_SUPERUSER_USERNAME }}
+              DJANGO_SUPERUSER_PASSWORD=${{ vars.DJANGO_SUPERUSER_PASSWORD }}
+              DJANGO_SUPERUSER_EMAIL=${{ vars.DJANGO_SUPERUSER_EMAIL }}
+              API_URL=${{ vars.API_URL }}
+              FRONTEND_EXTERNAL_PORT=${{ vars.FRONTEND_EXTERNAL_PORT }}
+              EOF
+            fi
+
+            echo "Build and start containers..."
+            docker compose up --build -d
+
+            echo "Deployment was successfull!"
