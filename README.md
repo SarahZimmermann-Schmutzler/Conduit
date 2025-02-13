@@ -97,16 +97,19 @@ Often the frontend and backend are hosted on different servers. A clear option i
 
     | Variable | Description | Type | Default Value |
     | -------- | ----------- | ---- | ------------- |
+    | **Used in backend application** | | | |
     | SECRET_KEY | Essential cryptographic key used by Django to protect sensitive data and provide security-critical functionality | string | secret |
-    | BACKEND_EXTERNAL_PORT | External portnumber for backend-container | string | 8383 |
-    | FRONTEND_EXTERNAL_PORT | External portnumber for frontend-container | string | 8282 |
     | DEBUG | Set False for production mode | boolean | True |
-    | CORS_ORIGIN_WHITELIST | Adds the CORS_ORIGIN_WHITELIST (hosts with portnumber) | string | "127.0.0.1:8282,localhost:8282" |
-    | IP_ADDRESS_VM | Adds the host server to the ALLOWED_HOSTS list | string | 127.0.0.1 |
+    | IP_ADDRESS_VM | Server IP address, added to the ALLOWED_HOSTS list in settings.py | string | 127.0.0.1 |
+    | CORS_ORIGIN_WHITELIST | List of all hosts with their portnumbers, added to settings.py | string | "127.0.0.1:8282,localhost:8282" |
     | DJANGO_SUPERUSER_USERNAME | Username to create a superuser for the admin panel | string | admin |
     | DJANGO_SUPERUSER_EMAIL | Email address to create a superuser for the admin panel | string | admin@test.de |
     | DJANGO_SUPERUSER_PASSWORD | Password to create a superuser for the admin panel | string | changeMe123 |
-    | API_URL | Adds backend server to the frontend (environment.ts) | string | http://127.0.0.1:8383/api |
+    | **Used in frontend application** | | | |
+    | API_URL | Adds backend URL to environment.prod.ts, used in app/core/interceptors/api.interceptor.ts | string | http://127.0.0.1:8383/api |
+    | **Used for containerization** | | | |
+    | BACKEND_EXTERNAL_PORT | External portnumber for backend-container | string | 8383 |
+    | FRONTEND_EXTERNAL_PORT | External portnumber for frontend-container | string | 8282 |
 
 ### Containerization with Docker Compose
 
