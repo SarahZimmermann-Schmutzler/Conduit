@@ -26,7 +26,7 @@ jobs:
               docker compose down
               docker rmi conduit-frontend conduit-backend
               docker volume rm conduit_conduit-volume
-              docker builder prune -a
+              docker builder prune -a -f
               git pull
               git submodule update --remote --recursive
               echo "Conduit was updated successfully"
