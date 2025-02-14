@@ -42,18 +42,18 @@ jobs:
             if [ -f ".env" ]; then
               echo ".env is already existing"
             else
-              cat <<EOF > .env
-              SECRET_KEY=${{ secrets.SECRET_KEY }}
-              DEBUG=${{ vars.DEBUG }}
-              BACKEND_EXTERNAL_PORT=${{ vars.BACKEND_EXTERNAL_PORT }}
-              IP_ADDRESS_VM=${{ vars.IP_ADDRESS_VM }}
-              CORS_ORIGIN_WHITELIST=${{ vars.CORS_ORIGIN_WHITELIST }}
-              DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}
-              DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
-              DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }}
-              API_URL=${{ vars.API_URL }}
-              FRONTEND_EXTERNAL_PORT=${{ vars.FRONTEND_EXTERNAL_PORT }}
-              EOF
+              cat > .env <<EOF 
+SECRET_KEY=${{ secrets.SECRET_KEY }} 
+DEBUG=${{ vars.DEBUG }}
+BACKEND_EXTERNAL_PORT=${{ vars.BACKEND_EXTERNAL_PORT }}
+IP_ADDRESS_VM=${{ vars.IP_ADDRESS_VM }}
+CORS_ORIGIN_WHITELIST=${{ vars.CORS_ORIGIN_WHITELIST }}
+DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}
+DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
+DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }}
+API_URL=${{ vars.API_URL }}
+FRONTEND_EXTERNAL_PORT=${{ vars.FRONTEND_EXTERNAL_PORT }}
+EOF
             fi
 
             echo "Build and start containers..."
