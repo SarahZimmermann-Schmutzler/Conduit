@@ -1,6 +1,9 @@
 name: Deploy Conduit
 
 on: 
+  #push:
+  #  branches: [ "main" ]
+  
   workflow_dispatch:
 
 jobs:
