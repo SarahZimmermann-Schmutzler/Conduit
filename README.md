@@ -76,9 +76,16 @@ Often the frontend and backend are hosted on different servers. A clear option i
 
 ## Usage
 
-You can choose whether you want to operate the project manually or use the [`workflow`](./.github/workflows/workflow.md), which clones or updates the project automatically via SSH connection to a specified server.  
-  
-For manually use follow the steps below. You can still use the workflow after this setup.
+You can set up the project in two ways:
+
+* **Automatic Deployment**: Use the [`workflow`](./.github/workflows/workflow.md) to clone and deploy the project.
+  * Automatically deploy the project to a remote server via SSH
+  * Keep your project up-to-date without manual intervention
+  * Avoid manual setup and configuration
+
+* **Manual Setup**: Follow the steps below. You can still use the workflow after this setup for updating the project.
+  * Want to run the project locally
+  * Prefer to configure everything yourself
 
 ### Installation and Preparation
 
