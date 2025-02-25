@@ -6,6 +6,9 @@ on:
   
   workflow_dispatch:
 
+.env:
+  IMAGE_OWNER: sarahzimmermann-schmutzler
+
 jobs:
   # build container images in GitHub Actions Runner and push build images in ghcr
   build:
@@ -42,7 +45,7 @@ jobs:
           context: ./conduit-frontend
           file: ./conduit-frontend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/conduit-frontend:latest
+          tags: ghcr.io/${{ env.IMAGE_OWNER }}/conduit-frontend:latest
       
       - name: Conduit Backend - build docker image in runner and push to registry
         uses: docker/build-push-action@v6.14.0
@@ -50,7 +53,7 @@ jobs:
           context: ./conduit-backend
           file: ./conduit-backend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/conduit-backend:latest
+          tags: ghcr.io/${{ env.IMAGE_OWNER }}/conduit-backend:latest
       
       - name: Store the deployment files for the next job
         uses: actions/upload-artifact@v4.6.1
