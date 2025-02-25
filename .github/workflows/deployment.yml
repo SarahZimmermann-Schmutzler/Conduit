@@ -1,4 +1,4 @@
-name: Build & deploy Conduit
+name: Build & Deploy Conduit
 
 on: 
   #push:
@@ -51,6 +51,7 @@ jobs:
           tags: ghcr.io/${{ env.IMAGE_OWNER }}/conduit-frontend:latest
           build-args: |
             API_URL=${{ vars.API_URL }}
+          no-cache: true
       
       - name: Conduit Backend - build docker image in runner and push to registry
         uses: docker/build-push-action@v6.14.0
@@ -59,6 +60,7 @@ jobs:
           file: ./conduit-backend/Dockerfile
           push: true
           tags: ghcr.io/${{ env.IMAGE_OWNER }}/conduit-backend:latest
+          no-cache: true
       
       - name: Store the deployment files for the next job
         uses: actions/upload-artifact@v4.6.1
