@@ -49,6 +49,8 @@ jobs:
           file: ./conduit-frontend/Dockerfile
           push: true
           tags: ghcr.io/${{ env.IMAGE_OWNER }}/conduit-frontend:latest
+          build-args: |
+            API_URL=${{ vars.API_URL }}
       
       - name: Conduit Backend - build docker image in runner and push to registry
         uses: docker/build-push-action@v6.14.0
