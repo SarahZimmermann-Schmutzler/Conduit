@@ -13,6 +13,9 @@ jobs:
   # build container images in GitHub Actions Runner and push build images in ghcr
   build:
     runs-on: ubuntu-latest
+    permissions: 
+      packages: write  # for GHCR-Push
+      contents: read
     steps:
       - name: Clone the repository into the GitHub Actions Runner
         uses: actions/checkout@v4
