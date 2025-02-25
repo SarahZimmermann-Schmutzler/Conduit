@@ -40,13 +40,12 @@ In order to run the workflow and create the .env for the cloning process, it req
 | SSH_HOST | IP address of remote server |
 | SSH_USER | username on remote server |
 | SSH_PRIVATE_KEY | Private SSH key of remote server |
+| DEPLOY_DIR | Path to the folder in which the project should be published |
 | **Secrets for backend application used in .env** | |
 | SECRET_KEY | [further explanation](https://github.com/SarahZimmermann-Schmutzler/Conduit?tab=readme-ov-file#usage) |
 | DJANGO_SUPERUSER_USERNAME | [further explanation](https://github.com/SarahZimmermann-Schmutzler/Conduit?tab=readme-ov-file#usage) |
 | DJANGO_SUPERUSER_EMAIL | [further explanation](https://github.com/SarahZimmermann-Schmutzler/Conduit?tab=readme-ov-file#usage) |
 | DJANGO_SUPERUSER_PASSWORD | [further explanation](https://github.com/SarahZimmermann-Schmutzler/Conduit?tab=readme-ov-file#usage) |
-| **Variables for workflow** | |
-| DEPLOY_DIR | Path to the folder in which the project should be published |
 | **Variables for frontend and backend application used in .env** | |
 | DEBUG | [further explanation](https://github.com/SarahZimmermann-Schmutzler/Conduit?tab=readme-ov-file#usage) |
 | CORS_ORIGIN_WHITELIST | [further explanation](https://github.com/SarahZimmermann-Schmutzler/Conduit?tab=readme-ov-file#usage) |

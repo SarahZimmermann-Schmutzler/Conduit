@@ -2,8 +2,11 @@ version: "3.8"
 services:
   frontend:
     build:
-      context: ./conduit-frontend
-      dockerfile: Dockerfile
+      # for manual build process
+      # context: ./conduit-frontend
+      # dockerfile: Dockerfile
+      # for build with GitHub Actions
+      image: ghcr.io/sarahzimmermann-schmutzler/conduit-frontend:latest
       args:
         # passes the value from .env to Dockerfile for building process
         - API_URL=${API_URL}
@@ -17,8 +20,11 @@ services:
 
   backend:
     build:
-      context: ./conduit-backend
-      dockerfile: Dockerfile
+      # for manual build process
+      # context: ./conduit-backend
+      # dockerfile: Dockerfile
+      # for build with GitHub Action
+      image: ghcr.io/sarahzimmermann-schmutzler/conduit-backend:latest
     env_file: .env
     container_name: conduit-backend
     volumes:
