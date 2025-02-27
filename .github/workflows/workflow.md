@@ -19,7 +19,7 @@ The deployment pipeline is defined [here](./deployment.yml).
   * 1.) <ins>**build job**</ins>: This job builds the Docker container images for the Conduit frontend and backend applications within the **GitHub Actions Runner** and pushes them to the **GitHub Container Registry (GHCR)**:
     * **Clone the repository** into the GitHub Actions Runner using [actions/checkout](https://github.com/actions/checkout).
     * Log in to the **GitHub Container Registry (GHCR)** using [actions/login-action](https://github.com/docker/login-action).
-    * Set up **Docker Buildx** using [docker/setup-buildx-action](https://github.com/docker/setup-buildx-action) and set it **as default builder**.
+    * Set up **Docker Buildx** using [docker/setup-buildx-action](https://github.com/docker/setup-buildx-action).
     * **Create .env-file** with required environment variables.
     * **Build** the backend and frontend **Docker images** in GitHub Actions Runner and pushes them to GHCR using [docker/build-push-action](https://github.com/docker/build-push-action)
     * **Store** the **deployment files** for the next job using [actions/upload-artifact](https://github.com/actions/upload-artifact)

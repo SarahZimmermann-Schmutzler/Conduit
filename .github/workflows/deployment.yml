@@ -25,6 +25,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.10.0
       
+      - name: Set Buildx as default builder
+        run: |
+          docker buildx create --use --name mybuilder
+          docker buildx inspect mybuilder --bootstrap
+      
       - name: Log in to the GitHub Container Registry (GHCR)
         uses: docker/login-action@v3.3.0
         with:
@@ -33,18 +38,17 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Create .env-file with required environment variables
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DEBUG: ${{ vars.DEBUG }}
-          BACKEND_EXTERNAL_PORT: ${{ vars.BACKEND_EXTERNAL_PORT }}
-          IP_ADDRESS_VM: ${{ vars.IP_ADDRESS_VM }}
-          CORS_ORIGIN_WHITELIST: ${{ vars.CORS_ORIGIN_WHITELIST }}
-          DJANGO_SUPERUSER_USERNAME: ${{ secrets.DJANGO_SUPERUSER_USERNAME }}
-          DJANGO_SUPERUSER_PASSWORD: ${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
-          DJANGO_SUPERUSER_EMAIL: ${{ secrets.DJANGO_SUPERUSER_EMAIL }}
-          API_URL: ${{ vars.API_URL }}
-          FRONTEND_EXTERNAL_PORT: ${{ vars.FRONTEND_EXTERNAL_PORT }}
-        run: env > .env
+        run: |
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
+          echo "DEBUG=${{ vars.DEBUG }}" >> .env
+          echo "BACKEND_EXTERNAL_PORT=${{ vars.BACKEND_EXTERNAL_PORT }}" >> .env
+          echo "IP_ADDRESS_VM=${{ vars.IP_ADDRESS_VM }}" >> .env
+          echo "CORS_ORIGIN_WHITELIST=${{ vars.CORS_ORIGIN_WHITELIST }}" >> .env
+          echo "DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}" >> .env
+          echo "DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }}" >> .env
+          echo "DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }}" >> .env
+          echo "API_URL=${{ vars.API_URL }}" >> .env
+          echo "FRONTEND_EXTERNAL_PORT=${{ vars.FRONTEND_EXTERNAL_PORT }}" >> .env
 
       - name: Conduit Frontend - build docker image in runner and push to registry
         uses: docker/build-push-action@v6.14.0
@@ -56,6 +60,7 @@ jobs:
           build-args: |
             API_URL=${{ vars.API_URL }}
           no-cache: true
+          builder: mybuilder
       
       - name: Conduit Backend - build docker image in runner and push to registry
         uses: docker/build-push-action@v6.14.0
@@ -65,6 +70,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.IMAGE_OWNER }}/conduit-backend:latest
           no-cache: true
+          builder: mybuilder
       
       - name: Store the deployment files for the next job
         uses: actions/upload-artifact@v4.6.1
