@@ -13,12 +13,13 @@ The deployment pipeline is defined [here](./deployment.yml).
 
 * There are several ways to **trigger the workflow**:
   * <ins>Manual Trigger</ins> with workflow_dispatch: The workflow can be started manually via the GitHub Actions tab.
-  * <ins>Push to the main branch</ins>: You can set the workflow to be triggered automatically after a commit has been pushed to the main branch.
+  * <ins>Push to the main branch</ins> [Not activated]: You can set the workflow to be triggered automatically after a commit has been pushed to the main branch. You have to activate it in the [deployment.yml](./deployment.yml).
 
 * The CD pipeline consists of **two jobs**:
   * 1.) <ins>**build job**</ins>: This job builds the Docker container images for the Conduit frontend and backend applications within the **GitHub Actions Runner** and pushes them to the **GitHub Container Registry (GHCR)**:
     * **Clone the repository** into the GitHub Actions Runner using [actions/checkout](https://github.com/actions/checkout).
     * Log in to the **GitHub Container Registry (GHCR)** using [actions/login-action](https://github.com/docker/login-action).
+    * Set up **Docker Buildx** using [docker/setup-buildx-action](https://github.com/docker/setup-buildx-action) and set it **as default builder**.
     * **Create .env-file** with required environment variables.
     * **Build** the backend and frontend **Docker images** in GitHub Actions Runner and pushes them to GHCR using [docker/build-push-action](https://github.com/docker/build-push-action)
     * **Store** the **deployment files** for the next job using [actions/upload-artifact](https://github.com/actions/upload-artifact)
@@ -29,12 +30,13 @@ The deployment pipeline is defined [here](./deployment.yml).
     * **Start the containers** on the target server via SSH using [appleboy/ssh-action](https://github.com/appleboy/ssh-action) and the following Docker commands:
       * Stop running containers and clean up old resources:
         ```bash
-        docker compose down
-        docker rmi conduit-frontend conduit-backend
-        docker volume rm conduit_conduit-volume
-        docker builder prune -a -f
+        docker compose down --remove-orphans
+        docker system prune -a -f
         ```
-      * Start the frontend and backend containers in detached mode:
+
+        > [!CAUTION]
+        > The command `docker system prune -a -f` will remove all unused resources! Including stopped containers and their units.
+
         ```bash
         docker compose up -d
         ```
