@@ -34,8 +34,8 @@ The deployment pipeline is defined [here](./deployment.yml).
         docker system prune -a -f
         ```
 
-        > [!CAUTION]
-        > The command `docker system prune -a -f` will remove all unused resources! Including stopped containers and their units.
+> [!CAUTION]
+> The command `docker system prune -a -f` will remove all unused resources! Including stopped containers and their units.
 
         ```bash
         docker compose up -d
