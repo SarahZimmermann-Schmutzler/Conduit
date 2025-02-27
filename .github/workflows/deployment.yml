@@ -109,8 +109,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.DEPLOY_DIR }}
-            docker compose down
-            docker rmi conduit-frontend conduit-backend
-            docker volume rm conduit_conduit-volume
-            docker builder prune -a -f
+            docker compose down --remove-orphans
+            docker system prune -a -f
             docker compose up -d
