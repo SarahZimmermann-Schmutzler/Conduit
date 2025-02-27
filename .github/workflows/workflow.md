@@ -28,18 +28,15 @@ The deployment pipeline is defined [here](./deployment.yml).
     * **Download** the **deployment files** into GitHubActions Runner using [actions/download-artifact](https://github.com/actions/download-artifact)
     * **Transfer** the deployment files via SCP **to target server** using [appleboy/scp-action](https://github.com/appleboy/scp-action)
     * **Start the containers** on the target server via SSH using [appleboy/ssh-action](https://github.com/appleboy/ssh-action) and the following Docker commands:
-      * Stop running containers and clean up old resources:
+      * Stop running containers, clean up old resources and start the new setup in detached mode:
         ```bash
         docker compose down --remove-orphans
         docker system prune -a -f
+        docker compose up -d
         ```
 
 > [!CAUTION]
 > The command `docker system prune -a -f` will remove all unused resources! Including stopped containers and their units.
-
-        ```bash
-        docker compose up -d
-        ```
 
 * Logs are available in the GitHub Actions Runs. If an error occurs, the workflow stops and a notification is sent.
 
