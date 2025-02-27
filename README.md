@@ -128,6 +128,9 @@ You can set up the project in two ways:
 
 1. One service each is created for the frontend and the backend application. The [`compose.yaml`](./compose.yaml) is responsible for managing and orchestrating the frontend and backend container. It defines what configurations they should have.
 
+> [!NOTE]
+> The file is adapted for automatic deployment. For this manual deployment setup, the `image blocks` in the services must be exchanged for the `build blocks`, as noted in the file.
+
 1. The [`Frontend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-frontend/blob/master/Dockerfile) describes how a single Docker image for the frontend-container should be created.
 
 1. Also the [`Backend-Dockerfile`](https://github.com/SarahZimmermann-Schmutzler/conduit-backend/blob/master/Dockerfile) serves as the basis for the corresponding service in the Docker Compose file.
