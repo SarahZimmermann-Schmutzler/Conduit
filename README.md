@@ -39,6 +39,8 @@ Often the frontend and backend are hosted on different servers. A clear option i
   
 ## Quickstart
 
+This section provides a fast and **minimal setup guide** for using the tools in this repository. For a more **in-depth understanding** and additional options, please refer to the [Usage](#usage) section.
+
 0) [Fork](https://docs.github.com/de/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the project to your namespace, if you want to make changes or open a [Pull Request](https://docs.github.com/de/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) or use the [`workflow`](./.github/workflows/workflow.md) that automatically clones and publishes the project after the GitHub secrets and variables are set up.
 
 1. [Clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) the project to your platform if you just want to use it or start the [`workflow`](./.github/workflows/workflow.md) manually:
