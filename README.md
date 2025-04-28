@@ -43,7 +43,7 @@ This section provides a fast and **minimal setup guide** for using the tools in 
 
 0) [Fork](https://docs.github.com/de/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the project to your namespace, if you want to make changes or open a [Pull Request](https://docs.github.com/de/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) or use the [`workflow`](./.github/workflows/workflow.md) that automatically clones and publishes the project after the GitHub secrets and variables are set up.
 
-1. [Clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) the project to your platform if you just want to use it or start the [`workflow`](./.github/workflows/workflow.md) manually:
+1. [Clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) the project to your platform if you just want to use it or start the [`workflow`](https://github.com/SarahZimmermann-Schmutzler/Conduit/blob/main/.github/workflows/workflow.md) manually:
     * <ins>Example</ins>: Clone the repo e.g. using an SSH-Key:  
 
     ```bash
@@ -58,7 +58,7 @@ This section provides a fast and **minimal setup guide** for using the tools in 
     ```
 
 1. Configure the **environment variables**:
-    * Copy the content of the [`example.env`](./example.env) file into an .env file.
+    * Copy the content of the [`example.env`](https://github.com/SarahZimmermann-Schmutzler/Conduit/blob/main/example.env) file into an .env file.
 
     * The new `.env` file should contain all the environment variables - **all of them are required** to run the frontend and backend application!
 
@@ -71,16 +71,16 @@ This section provides a fast and **minimal setup guide** for using the tools in 
 1. Check whether the **containers are running** correctly:
 
 * Browse to your **IP_ADDRESS:8282** to open the `Frontend`, you should see something like this:
-    ![conduit-frontend](./frontend.png)
+    ![conduit-frontend](https://raw.githubusercontent.com/SarahZimmermann-Schmutzler/Conduit/main/frontend.png)
 
 * Browse to your **IP_ADDRESS:8383/admin** to open the `Backend`, you should see this:
-    ![conduit-backend](./backend.png)
+    ![conduit-backend](https://raw.githubusercontent.com/SarahZimmermann-Schmutzler/Conduit/main/backend.png)
 
 ## Usage
 
 You can set up the project in two ways:
 
-* **Automatic Deployment**: Use the [`workflow`](./.github/workflows/workflow.md) to clone and deploy the project.
+* **Automatic Deployment**: Use the [`workflow`](https://github.com/SarahZimmermann-Schmutzler/Conduit/blob/main/.github/workflows/workflow.md) to clone and deploy the project.
   * Automatically deploy the project to a remote server via SSH
   * Keep your project up-to-date without manual intervention
   * Avoid manual setup and configuration
@@ -106,7 +106,7 @@ You can set up the project in two ways:
     ```
 
 1. Configure the **environment variables**:
-    * Copy the content of the [`example.env`](./example.env) file into an .env file. It should contain all the environment variables - **all of them are required** to run the frontend and backend application:
+    * Copy the content of the [`example.env`](https://github.com/SarahZimmermann-Schmutzler/Conduit/blob/main/example.env) file into an .env file. It should contain all the environment variables - **all of them are required** to run the frontend and backend application:
 
     | Variable | Description | Type | Default Value |
     | -------- | ----------- | ---- | ------------- |
@@ -128,7 +128,7 @@ You can set up the project in two ways:
 
 #### The Files
 
-1. One service each is created for the frontend and the backend application. The [`compose.yaml`](./compose.yaml) is responsible for managing and orchestrating the frontend and backend container. It defines what configurations they should have.
+1. One service each is created for the frontend and the backend application. The [`compose.yaml`](https://github.com/SarahZimmermann-Schmutzler/Conduit/blob/main/compose.yaml) is responsible for managing and orchestrating the frontend and backend container. It defines what configurations they should have.
 
 > [!NOTE]
 > The file is adapted for automatic deployment. For this manual deployment setup, the `image blocks` in the services must be exchanged for the `build blocks`, as noted in the file.
@@ -162,10 +162,10 @@ You can set up the project in two ways:
 1. Check whether the **containers are running** correctly:
 
 * Browse to your **IP_ADDRESS:8282** to open the `Frontend`, you should see something like this:
-    ![conduit-frontend](./frontend.png)
+    ![conduit-frontend](https://raw.githubusercontent.com/SarahZimmermann-Schmutzler/Conduit/main/frontend.png)
 
 * Browse to your **IP_ADDRESS:8383/admin** to open the `Backend`, you should see this:
-    ![conduit-backend](./backend.png)
+    ![conduit-backend](https://raw.githubusercontent.com/SarahZimmermann-Schmutzler/Conduit/main/backend.png)
 
 * If there is any **problem with the frontend-backend-connection** (f.e.CORS-Error) check if your ip-address is correctly set in the `.env`.
 
